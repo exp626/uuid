@@ -29,3 +29,10 @@ func (r *UUID) UnmarshalBSON(data []byte) error {
 	r.UUID = uuid
 	return nil
 }
+
+func Parse(s string) (UUID, error) {
+	uuid, err := googleUUID.Parse(s)
+	return UUID{
+		UUID: uuid,
+	}, err
+}
