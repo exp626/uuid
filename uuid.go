@@ -1,6 +1,8 @@
 package uuid
 
 import (
+	"errors"
+
 	googleUUID "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/x/bsonx/bsoncore"
@@ -16,19 +18,22 @@ func (id UUID) MarshalBSONValue() (bsontype.Type, []byte, error) {
 }
 
 func (id *UUID) UnmarshalBSONValue(bsonType bsontype.Type, bytes []byte) error {
-	uid, err := googleUUID.FromBytes(bytes)
+
+	if bsonType != bsontype.String {
+		return errors.New("UnmarshalBSONValue: uuid is not string")
+	}
+
+	uid, err := googleUUID.Parse(string(bytes))
 	if err != nil {
 		return err
 	}
 
-	*id = UUID{
-		UUID: uid,
-	}
+	id.UUID = uid
+
 	return nil
 }
 
 func Parse(s string) (UUID, error) {
-	googleUUID.NewString()
 	uuid, err := googleUUID.Parse(s)
 	return UUID{
 		UUID: uuid,
@@ -36,7 +41,7 @@ func Parse(s string) (UUID, error) {
 }
 
 func NewString() string {
-	return googleUUID.New().String()
+	return googleUUID.NewString()
 }
 
 func New() UUID {
