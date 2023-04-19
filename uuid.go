@@ -2,31 +2,28 @@ package uuid
 
 import (
 	googleUUID "github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
+	"go.mongodb.org/mongo-driver/x/bsonx/bsoncore"
 )
 
 type UUID struct {
 	googleUUID.UUID
 }
 
-func (r *UUID) MarshalBSON() ([]byte, error) {
-	uuid := r.String()
-	return bson.Marshal(uuid)
+func (id UUID) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	uuid := id.String()
+	return bsontype.String, bsoncore.AppendString(nil, uuid), nil
 }
 
-func (r *UUID) UnmarshalBSON(data []byte) error {
-	var strUUID string
-	err := bson.Unmarshal(data, strUUID)
+func (id *UUID) UnmarshalBSONValue(bsonType bsontype.Type, bytes []byte) error {
+	uid, err := googleUUID.FromBytes(bytes)
 	if err != nil {
 		return err
 	}
 
-	uuid, err := googleUUID.Parse(strUUID)
-	if err != nil {
-		return err
+	*id = UUID{
+		UUID: uid,
 	}
-
-	r.UUID = uuid
 	return nil
 }
 
