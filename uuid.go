@@ -18,12 +18,16 @@ func (id UUID) MarshalBSONValue() (bsontype.Type, []byte, error) {
 }
 
 func (id *UUID) UnmarshalBSONValue(bsonType bsontype.Type, bytes []byte) error {
-
 	if bsonType != bsontype.String {
 		return errors.New("UnmarshalBSONValue: uuid is not string")
 	}
 
-	uid, err := googleUUID.Parse(string(bytes))
+	s, _, ok := bsoncore.ReadString(bytes)
+	if !ok {
+		return errors.New("invalid bson string value")
+	}
+
+	uid, err := googleUUID.Parse(s)
 	if err != nil {
 		return err
 	}
