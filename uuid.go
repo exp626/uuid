@@ -53,3 +53,14 @@ func New() UUID {
 		UUID: googleUUID.New(),
 	}
 }
+
+func (id UUID) IsNil() bool {
+	return id == UUID{}
+}
+
+func FromBytes(b []byte) (ret UUID, err error) {
+	uuid, err := googleUUID.FromBytes(b)
+	return UUID{
+		UUID: uuid,
+	}, err
+}
